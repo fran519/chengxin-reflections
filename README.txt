@@ -24,3 +24,4 @@
 
 
 修正版：已支援 Supabase 新版 sb_publishable_ 前端金鑰格式；前台投稿會連到 reflections 資料表。
+Vercel deployment
