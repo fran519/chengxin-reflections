@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>聊完以後｜澄心所</title>
+<style>
+:root{--ink:#34405b;--muted:#77758a;--cream:#fbf7ef;--lav:#e7e2f2;--gold:#c9a75e;--white:#fffdf9}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif}
+main{max-width:900px;margin:auto;padding:28px 18px 70px}.hero{padding:58px 24px;text-align:center;border-radius:28px;background:linear-gradient(145deg,#fffaf0,#eeeafa)}
+.stars{color:var(--gold);font-size:20px;letter-spacing:8px}.brand{font-size:13px;letter-spacing:5px;margin-top:15px}.title{font-size:52px;font-weight:500;margin:14px 0 8px}.sub{font-size:17px;letter-spacing:2px}.intro{line-height:2;margin:25px auto 0;max-width:570px}
+.section{margin-top:48px}.section h2{text-align:center;font-size:25px;font-weight:500}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.card{background:var(--white);border:1px solid #e9e1d8;border-radius:20px;padding:23px;box-shadow:0 8px 22px #514c6a0b}.tag{font-size:12px;letter-spacing:2px;color:#827c98}.quote{font-size:21px;line-height:1.8;margin:15px 0}.from{font-size:12px;color:var(--muted)}
+.formbox{margin-top:48px;padding:30px;background:var(--lav);border-radius:24px}.formbox h2{text-align:center;font-weight:500}.hint{text-align:center;color:var(--muted);font-size:14px;line-height:1.8}
+label{display:block;margin:18px 0 8px;font-size:14px}input,textarea{width:100%;border:1px solid #d9d2df;border-radius:14px;padding:13px 15px;background:#fffdfd;font:inherit;color:var(--ink)}textarea{min-height:140px;resize:vertical}
+button{border:0;border-radius:999px;padding:13px 28px;background:var(--ink);color:#fff;font:inherit;cursor:pointer;letter-spacing:2px}.center{text-align:center;margin-top:20px}
+.consent{font-size:13px;line-height:1.7;color:#625f70;margin-top:14px}.success{display:none;text-align:center;padding:30px 10px}.footer{text-align:center;margin-top:50px;color:var(--muted);font-size:12px;letter-spacing:2px;line-height:2}
+.notice{font-size:13px;color:#6d6979;background:#fff9;border-radius:14px;padding:12px 14px;margin-top:15px}
+@media(max-width:650px){.title{font-size:42px}.grid{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<main>
+<section class="hero">
+<div class="stars">✦　☾　✦</div><div class="brand">澄心所｜身心整合</div>
+<h1 class="title">聊完以後</h1><div class="sub">那些在對話裡，慢慢被看見的自己</div>
+<p class="intro">有些困擾，不一定需要立刻找到答案。<br>有時候，只是需要一個人陪你，把混亂的事情慢慢梳理開來。</p>
+</section>
+<section class="section"><h2>有人聊完以後，留下了這些話</h2><div id="wall" class="grid"></div></section>
+<section id="leave" class="formbox">
+<div id="form">
+<h2>聊完以後，你想留下什麼？</h2>
+<p class="hint">如果今天的對話讓你多看見了一點自己，<br>歡迎留下你想帶走的一句話。</p>
+<label>暱稱</label><input id="nickname" maxlength="30" placeholder="可以用暱稱，不需要真名">
+<label>聊完的感受</label><textarea id="feeling" maxlength="500" placeholder="今天聊完，我突然……"></textarea>
+<div class="consent">☑ 送出代表你同意這段文字在經確認後，以你填寫的暱稱公開於「聊完以後」。你可以隨時要求撤下。</div>
+<div class="center"><button onclick="submitEntry()">留下我的話</button></div>
+<div id="msg" class="notice" style="display:none"></div>
+</div>
+<div id="success" class="success"><h2>謝謝你留下這段話。🌙</h2><p>你的分享已送出，會先經確認，確認後才會出現在「聊完以後」。</p></div>
+</section>
+<div class="footer">人類圖｜陪伴對話｜身心整合<br>每一次對話，都可能是重新理解自己的開始。</div>
+</main>
+<script>
+const CONFIG={url:"https://bgqncjyqnimifoyamhge.supabase.co",key:"sb_publishable_qwpN_Jtd6_ZO8D6OLVxBOg_yzfzt2lg"};
+const ready=CONFIG.url.startsWith("http")&&CONFIG.key.startsWith("sb_publishable_");
+const db=ready?supabase.createClient(CONFIG.url,CONFIG.key):null;
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+async function load(){
+ if(!db){document.getElementById("wall").innerHTML="<article class='card'><div class='tag'>#示意</div><div class='quote'>「原來我不是沒有答案，只是不敢承認。」</div><div class='from'>— 一次關於工作的聊天</div></article>";return}
+ const {data,error}=await db.from("reflections").select("nickname,feeling,tag").eq("status","published").order("created_at",{ascending:false});
+ if(error)return;
+ document.getElementById("wall").innerHTML=(data||[]).map(x=>`<article class="card"><div class="tag">${esc(x.tag||"#聊完以後")}</div><div class="quote">「${esc(x.feeling)}」</div><div class="from">— ${esc(x.nickname||"匿名")}</div></article>`).join("")||"<p style='grid-column:1/-1;text-align:center;color:#777'>第一句話，等你留下。</p>";
+}
+async function submitEntry(){
+ const n=document.getElementById("nickname").value.trim()||"匿名", f=document.getElementById("feeling").value.trim(), msg=document.getElementById("msg");
+ if(!f){msg.style.display="block";msg.textContent="先留下一點今天的感受吧 🌿";return}
+ if(!db){msg.style.display="block";msg.textContent="這是預覽版：要正式收件，請先完成 Supabase 設定。";return}
+ const {error}=await db.from("reflections").insert({nickname:n,feeling:f,tag:"#聊完以後",status:"pending"});
+ if(error){msg.style.display="block";msg.textContent="送出時出了點問題，請稍後再試。";return}
+ document.getElementById("form").style.display="none";document.getElementById("success").style.display="block";
+}
+load();
+</script>
+</body></html>
